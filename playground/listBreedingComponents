@@ -4,26 +4,17 @@ import ContentComponent from '../contentComponent/contentComponent';
 class ListBreeds extends ContentComponent {
   constructor() {
     super();
-    this.breeds = null; // Initialize the `breeds` property to null
     this.render();
   }
 
   async getFullList() {
-    if (this.breeds !== null) { // Check if the `breeds` property has already been set
-      console.log('Loading breeds from cache...'); // Log a message indicating that we're loading from cache
-      return this.breeds; // Return the cached `breeds`
-    }
     const response = await fetch('https://dog.ceo/api/breeds/list/all');
     if (!response.ok) {
       return new Error('API response error');
     }
     const data = await response.json();
-    this.breeds = data.message; // Store the fetched `breeds` in the `breeds` property
-    localStorage.setItem('dogs', JSON.stringify(this.breeds)); // Store the `breeds` in localStorage
-    console.log('Fetching and caching breeds...');
-    return this.breeds;
+    return data.message;
   }
-
   /**
    *
    * @param {string} breedName
@@ -50,20 +41,6 @@ class ListBreeds extends ContentComponent {
         this.createListItem(breed);
       }
     }
-  }
-
-  clearContent() {
-    const content = document.querySelector('#content');
-    while (content.firstChild) {
-      content.removeChild(content.firstChild);
-    }
-  }
-
-  displayError(errorMessage) {
-    const errorElement = document.createElement('div');
-    errorElement.classList.add('error');
-    errorElement.innerText = errorMessage;
-    document.querySelector('#content').appendChild(errorElement);
   }
 
   render() {

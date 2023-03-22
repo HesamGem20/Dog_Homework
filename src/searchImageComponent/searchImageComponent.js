@@ -39,11 +39,15 @@ class SearchImage extends ContentComponent {
    * @param {array} imageList
    * @returns {void}
    */
-  displayImage(imageList) {
-    const img = document.createElement('img');
-    img.src = imageList[Math.floor(Math.random() * imageList.length)];
+
+  displayImage(imageList, count) {
     this.clearContent();
-    document.querySelector('#content').appendChild(img);
+    for (let i = 0; i < count; i++) {
+      const img = document.createElement('img');
+      img.src = imageList[Math.floor(Math.random() * imageList.length)];
+      console.log('imageList', img.src);
+      document.querySelector('#content').appendChild(img);
+    }
   }
 
   render() {
@@ -51,6 +55,7 @@ class SearchImage extends ContentComponent {
     <form class="dog-search">
       <span class="search-icon"></span>
       <input type="text" id="dogSearchInput">
+      <input type="text" id="imageNumberInput" placeholder="1">
       <button>Search</button>
     </form>
     `;
@@ -59,16 +64,35 @@ class SearchImage extends ContentComponent {
     document.querySelector('.dog-search button').addEventListener('click', (e) => {
       e.preventDefault();
       const searchTerm = document.querySelector('#dogSearchInput').value;
+      let count = document.querySelector('#imageNumberInput').value;
+      if (isNaN(count) || count === '') {
+        count = 1;
+        document.querySelector('#imageNumberInput').value = 1;
+      } else {
+        count = Math.floor(Number(count));
+        document.querySelector('#imageNumberInput').value = count;
+      }
       if (!searchTerm) {
         this.displayError('Please enter a breed to search');
         return;
       }
       console.log(searchTerm);
-      this.getImages(searchTerm)
+      // convert searchTerm toLowerCase
+      this.getImages(searchTerm.toLowerCase())
         .then((imageList) => {
           if (imageList) {
             this.clearErrors();
-            this.displayImage(imageList);
+            const countInput = document.querySelector('#imageNumberInput');
+            let count = parseInt(countInput.value);
+            if (isNaN(count) || count <= 0) {
+              count = 1;
+              countInput.value = 1;
+            } else {
+              count = Math.floor(count);
+              countInput.value = count;
+            }
+
+            this.displayImage(imageList, count);
           } else {
             // error handling for 404 reposnse
             this.displayError('Breed not found, Try to list the breeds first');
